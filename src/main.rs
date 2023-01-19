@@ -8,7 +8,9 @@ struct Cli {
     #[arg(short, long, default_value = ".")]
     path: String,
     #[arg(short, long, default_value = "/")]
-    base: String
+    base: String,
+    #[arg(short, long, default_value = "true")]
+    list: String,
 }
 
 #[actix_web::main]
@@ -20,7 +22,15 @@ async fn main() -> std::io::Result<()> {
         std::process::exit(exitcode::OK);
     }).expect("Error setting Crtl-C handler");
 
-    HttpServer::new(move || App::new().service(fs::Files::new(args.base.as_str(), args.path.as_str()).show_files_listing()))
+    HttpServer::new(move || {
+        let files = fs::Files::new(args.base.as_str(), args.path.as_str());
+        let service = match args.list.as_str() {
+            "true" => files.show_files_listing(),
+            "false" => files,
+            _ => unreachable!()
+        };
+        App::new().service(service)
+    })
         .bind(("127.0.0.1", 8080))?
         .run()
         .await
