@@ -475,6 +475,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "exitcode"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de853764b47027c2e862a995c34978ffa63c1501f2e15f987ba11bd4f9bba193"
+
+[[package]]
 name = "flate2"
 version = "1.0.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -702,6 +708,7 @@ dependencies = [
  "actix-web",
  "clap",
  "ctrlc",
+ "exitcode",
 ]
 
 [[package]]

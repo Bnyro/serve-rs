@@ -13,7 +13,7 @@ async fn main() -> std::io::Result<()> {
 
     ctrlc::set_handler(|| {
         println!("\nShutting down live server. See you later!");
-        std::process::exit(0x0100);
+        std::process::exit(exitcode::OK);
     }).expect("Error setting Crtl-C handler");
 
     HttpServer::new(move || App::new().service(fs::Files::new("/", args.path.as_str()).show_files_listing()))
