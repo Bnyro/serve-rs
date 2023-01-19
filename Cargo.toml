@@ -9,3 +9,4 @@ edition = "2021"
 clap = { version = "4.0", features = ["derive"] }
 actix-web = "4"
 actix-files = "0.6.2"
+ctrlc = "3.2.4"
