@@ -2,12 +2,13 @@ use clap::Parser;
 use actix_files as fs;
 use actix_web::{App, HttpServer};
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
 struct Cli {
     #[arg(short, long, default_value = ".")]
     path: String,
     #[arg(short, long, default_value = "/")]
-    base: String,
+    base: String
 }
 
 #[actix_web::main]
