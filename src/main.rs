@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ArgAction};
 use actix_files as fs;
 use actix_web::{App, HttpServer};
 
@@ -13,8 +13,8 @@ struct Cli {
     port: u16,
     #[arg(short, long, default_value = "/")]
     base: String,
-    #[arg(short, long, default_value = "true")]
-    list: String,
+    #[arg(short, long, action = ArgAction::SetFalse)]
+    list: bool,
 }
 
 #[actix_web::main]
@@ -29,10 +29,9 @@ async fn main() -> std::io::Result<()> {
     println!("\nListening on {}:{}", "http://".to_string() + args.address.replace("http://", "").as_str(), args.port);
     HttpServer::new(move || {
         let files = fs::Files::new(args.base.as_str(), args.dir.as_str());
-        let service = match args.list.as_str() {
-            "true" => files.show_files_listing(),
-            "false" => files,
-            _ => unreachable!()
+        let service = match args.list {
+            true => files.show_files_listing(),
+            false => files,
         };
         App::new().service(service)
     })
