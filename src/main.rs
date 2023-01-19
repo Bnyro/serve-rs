@@ -6,7 +6,11 @@ use actix_web::{App, HttpServer};
 #[command(author, version, about, long_about = None)]
 struct Cli {
     #[arg(short, long, default_value = ".")]
-    path: String,
+    dir: String,
+    #[arg(short, long, default_value = "127.0.0.1")]
+    address: String,
+    #[arg(short, long, default_value_t = 8080)]
+    port: u16,
     #[arg(short, long, default_value = "/")]
     base: String,
     #[arg(short, long, default_value = "true")]
@@ -22,8 +26,9 @@ async fn main() -> std::io::Result<()> {
         std::process::exit(exitcode::OK);
     }).expect("Error setting Crtl-C handler");
 
+    println!("\nListening on {}:{}", "http://".to_string() + args.address.replace("http://", "").as_str(), args.port);
     HttpServer::new(move || {
-        let files = fs::Files::new(args.base.as_str(), args.path.as_str());
+        let files = fs::Files::new(args.base.as_str(), args.dir.as_str());
         let service = match args.list.as_str() {
             "true" => files.show_files_listing(),
             "false" => files,
@@ -31,7 +36,7 @@ async fn main() -> std::io::Result<()> {
         };
         App::new().service(service)
     })
-        .bind(("127.0.0.1", 8080))?
+        .bind((args.address, args.port))?
         .run()
         .await
 }
