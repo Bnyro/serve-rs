@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use clap::{Parser, ArgAction, ValueHint};
 use actix_files as fs;
 use actix_web::{App, HttpServer};
@@ -26,9 +28,14 @@ async fn main() -> std::io::Result<()> {
         std::process::exit(exitcode::OK);
     }).expect("Error setting Crtl-C handler");
 
-    println!("\nListening on {}:{}", "http://".to_string() + args.address.replace("http://", "").as_str(), args.port);
+    let path = args.directory.clone().unwrap_or(String::from("."));
+    if !Path::new(path.clone().as_str()).exists() {
+        println!("\nProvided path does not exits. Shutting down!");
+        std::process::exit(exitcode::OSFILE);
+    }
+
+    println!("\nStarted live server at {}:{}", "http://".to_string() + args.address.replace("http://", "").as_str(), args.port);
     HttpServer::new(move || {
-        let path = args.directory.clone().unwrap_or(String::from("."));
         let files = fs::Files::new(args.base.as_str(), path.as_str());
         let service = match args.list {
             true => files.show_files_listing(),
