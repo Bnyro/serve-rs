@@ -27,7 +27,12 @@ async fn index(filename: web::Path<String>) -> HttpResponse {
     let mut content_type = ContentType::plaintext().to_string();
     let mut content = String::from("Not Found");
     if target.is_file() {
-        content_type = mime_guess::from_path(target.clone()).first().expect("No Mime Type found").to_string();
+        match mime_guess::from_path(target.clone()).first() {
+            Some(ct) => {
+                content_type = ct.to_string();
+            },
+            None => {}
+        }
         content = fs::read_to_string(target).expect("Can't read file!");
     } else if target.is_dir() {
         content_type = ContentType::html().to_string();
