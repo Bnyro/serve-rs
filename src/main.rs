@@ -3,7 +3,7 @@ use std::{path::{Path, PathBuf}, fs::{self}};
 use clap::{Parser, ArgAction, ValueHint};
 use actix_web::{App, HttpServer, web, HttpResponse, get, http::header::ContentType};
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
     #[arg(short, long, default_value = "127.0.0.1")]
@@ -19,9 +19,9 @@ struct Cli {
 }
 
 #[get("/{filename:.*}")]
-async fn index(filename: web::Path<String>) -> HttpResponse {
+async fn index(filename: web::Path<String>, args: web::Data<Cli>) -> HttpResponse {
     let path: PathBuf = filename.parse().unwrap();
-    let base = PathBuf::from("/home/bnyro/Projects/bnyro.github.io/");
+    let base = PathBuf::from(args.directory.clone().unwrap_or(String::from(".")));
     let target = base.join(path.clone());
 
     let mut content_type = ContentType::plaintext().to_string();
@@ -84,6 +84,7 @@ fn directory_listing(base: PathBuf) -> String {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let args = Cli::parse();
+    let app_state = args.clone();
 
     ctrlc::set_handler(|| {
         println!("\nShutting down live server. See you later!");
@@ -97,8 +98,8 @@ async fn main() -> std::io::Result<()> {
     }
 
     println!("\nStarted live server at {}:{}", "http://".to_string() + args.address.replace("http://", "").as_str(), args.port);
-    HttpServer::new(|| {
-        App::new().service(index)
+    HttpServer::new(move || {
+        App::new().app_data(web::Data::new(app_state.clone())).service(index)
     })
         .bind((args.address, args.port))?
         .run()
