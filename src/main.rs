@@ -1,6 +1,6 @@
 pub mod directory;
 
-use std::{path::{Path, PathBuf}, fs::{self}};
+use std::{path::{Path, PathBuf}, fs};
 
 use clap::{Parser, ArgAction, ValueHint};
 use actix_web::{App, HttpServer, web, HttpResponse, get, http::header::ContentType};
