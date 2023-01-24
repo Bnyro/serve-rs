@@ -18,15 +18,22 @@ struct Cli {
     base: String,
     #[arg(short, long, action = ArgAction::SetFalse)]
     list: bool,
+    #[arg(short, long)]
+    index_path: Option<String>,
     #[arg(value_hint = ValueHint::DirPath)]
     directory: Option<String>,
 }
 
 #[get("/{filename:.*}")]
 async fn index(filename: web::Path<String>, args: web::Data<Cli>) -> HttpResponse {
-    let path: PathBuf = filename.parse().unwrap();
+    
     let base = PathBuf::from(args.directory.clone().unwrap_or(String::from(".")));
-    let target = base.join(path.clone());
+    let target = if filename.to_string().is_empty() && args.index_path.is_some() {
+        base.join(args.index_path.clone().unwrap())
+    } else {
+        let path: PathBuf = filename.parse().unwrap();
+        base.join(path.clone())
+    };
 
     let mut content_type = ContentType::plaintext().to_string();
     let mut content = String::from("Not Found");
