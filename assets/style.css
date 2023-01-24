@@ -1,0 +1,37 @@
+:root {
+  --background: #1e1e2e;
+  --text: #cdd6f4;
+  --accent: #cba6f7;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #eff1f5;
+    --text: #4c4f69;
+    --accent: #8839ef;
+  }
+}
+
+html {
+  background-color: var(--background);
+  color: var(--text);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+}
+
+a {
+  text-decoration: none;
+  color: var(--text);
+  transition: 0.2s all ease-in-out;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: var(--accent);
+}

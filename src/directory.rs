@@ -27,13 +27,18 @@ pub fn directory_listing(base: PathBuf, root_dir: PathBuf) -> String {
             }
         }
 
+    let title = base.file_name().unwrap().to_string_lossy();
+
     format!(
         "<html>\
          <head><title>{}</title></head>\
-         <body><h1>{}</h1>\
+         <body>
+         <h3>{}</h3>\
          <ul>\
          {}\
-         </ul></body>\n</html>",
-        "", "", body
+         </ul>
+         </body>\n</html>
+         <style>{}</style>",
+        title, title, body, include_str!("../assets/style.css")
     )
 }
