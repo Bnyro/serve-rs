@@ -14,13 +14,13 @@ pub fn directory_listing(base: PathBuf, root_dir: PathBuf) -> String {
             let href = path.to_string_lossy().replacen(&root, "", 1);
             if path.is_dir() {
                 body += &format!(
-                    "<li><a href=\"{}\">{}/</a></li>",
+                    "<li><a href=\"{}\">{}/</a></li>\n",
                     href,
                     entry.file_name().to_string_lossy(),
                 ).to_string();
             } else {
                 body += &format!(
-                    "<li><a href=\"{}\">{}</a></li>",
+                    "<li><a href=\"{}\">{}</a></li>\n",
                     href,
                     entry.file_name().to_string_lossy(),
                 ).to_string();
@@ -30,15 +30,17 @@ pub fn directory_listing(base: PathBuf, root_dir: PathBuf) -> String {
     let title = base.file_name().unwrap().to_string_lossy();
 
     format!(
-        "<html>\
-         <head><title>{}</title></head>\
-         <body>
-         <h3>{}</h3>\
-         <ul>\
-         {}\
-         </ul>
-         </body>\n</html>
-         <style>{}</style>",
+        "<!DOCTYPE HTML>
+<html>
+<head><title>{}</title></head>
+<body>
+<h3>{}</h3>
+<ul>
+{}
+</ul>
+</body>
+</html>\n
+<style>\n{}</style>",
         title, title, body, include_str!("../assets/style.css")
     )
 }
