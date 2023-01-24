@@ -40,7 +40,7 @@ async fn index(filename: web::Path<String>, args: web::Data<Cli>) -> HttpRespons
         content = fs::read_to_string(target).expect("Can't read file!");
     } else if target.is_dir() {
         content_type = ContentType::html().to_string();
-        content = String::from(directory_listing(target));
+        content = String::from(directory_listing(target, base));
     }
     return HttpResponse::Ok().content_type(content_type).body(content);
 }

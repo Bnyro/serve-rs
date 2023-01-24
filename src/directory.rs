@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
-pub fn directory_listing(base: PathBuf) -> String {
+pub fn directory_listing(base: PathBuf, root_dir: PathBuf) -> String {
+    
+    let root = root_dir.to_string_lossy().to_string();
     let children = base.read_dir().unwrap();
 
     let mut body = String::new();
@@ -8,22 +10,18 @@ pub fn directory_listing(base: PathBuf) -> String {
     for entry in children {
             let entry = entry.unwrap();
             let path = entry.path();
-            let p = match path.strip_prefix(&base) {
-                Ok(p) if cfg!(windows) => base.join(p).to_string_lossy().replace('\\', "/"),
-                Ok(p) => base.join(p).to_string_lossy().into_owned(),
-                Err(_) => continue,
-            };
 
+            let href = path.to_string_lossy().replacen(&root, "", 1);
             if path.is_dir() {
                 body += &format!(
                     "<li><a href=\"{}\">{}/</a></li>",
-                    p,
+                    href,
                     entry.file_name().to_string_lossy(),
                 ).to_string();
             } else {
                 body += &format!(
                     "<li><a href=\"{}\">{}</a></li>",
-                    p,
+                    href,
                     entry.file_name().to_string_lossy(),
                 ).to_string();
             }
