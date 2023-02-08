@@ -6,6 +6,7 @@ use clap::{Parser, ArgAction, ValueHint};
 use actix_web::{App, HttpServer, web, HttpResponse, get, http::header::ContentType};
 
 use crate::directory::directory_listing;
+use lazy_static::lazy_static;
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
@@ -24,12 +25,16 @@ struct Cli {
     directory: Option<String>,
 }
 
+lazy_static! {
+    static ref ARGS: Cli = Cli::parse();
+}
+
 #[get("/{filename:.*}")]
-async fn index(filename: web::Path<String>, args: web::Data<Cli>) -> HttpResponse {
+async fn index(filename: web::Path<String>) -> HttpResponse {
     
-    let base = PathBuf::from(args.directory.clone().unwrap_or(String::from(".")));
-    let target = if filename.to_string().is_empty() && args.index_path.is_some() {
-        base.join(args.index_path.clone().unwrap())
+    let base = PathBuf::from(ARGS.directory.clone().unwrap_or(String::from(".")));
+    let target = if filename.to_string().is_empty() && ARGS.index_path.is_some() {
+        base.join(ARGS.index_path.clone().unwrap())
     } else {
         let path: PathBuf = filename.parse().unwrap();
         base.join(path.clone())
@@ -46,7 +51,7 @@ async fn index(filename: web::Path<String>, args: web::Data<Cli>) -> HttpRespons
         }
         content = fs::read_to_string(target).expect("Can't read file!");
     } else if target.is_dir() {
-        match args.list {
+        match ARGS.list {
             true => {
                 content_type = ContentType::html().to_string();
                 content = String::from(directory_listing(target, base));
@@ -61,25 +66,20 @@ async fn index(filename: web::Path<String>, args: web::Data<Cli>) -> HttpRespons
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let args = Cli::parse();
-    let app_state = args.clone();
-
     ctrlc::set_handler(|| {
         println!("\nShutting down live server. See you later!");
         std::process::exit(exitcode::OK);
     }).expect("Error setting Crtl-C handler");
 
-    let path = args.directory.clone().unwrap_or(String::from("."));
+    let path = ARGS.directory.clone().unwrap_or(String::from("."));
     if !Path::new(path.clone().as_str()).exists() {
         println!("\nProvided path does not exits. Shutting down!");
         std::process::exit(exitcode::OSFILE);
     }
 
-    println!("\nStarted live server at {}:{}", "http://".to_string() + args.address.replace("http://", "").as_str(), args.port);
-    HttpServer::new(move || {
-        App::new().app_data(web::Data::new(app_state.clone())).service(index)
-    })
-        .bind((args.address, args.port))?
+    println!("\nStarted live server at {}:{}", "http://".to_string() + ARGS.address.replace("http://", "").as_str(), ARGS.port.clone());
+    HttpServer::new(move || App::new().service(index))
+        .bind((ARGS.address.clone(), ARGS.port))?
         .run()
         .await
 }
