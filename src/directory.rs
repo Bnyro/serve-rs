@@ -35,7 +35,7 @@ pub fn directory_listing(base: PathBuf, root_dir: PathBuf) -> String {
 <html>
 <head><title>{}</title></head>
 <body>
-<h3>{}</h3>
+<h2>{}</h2>
 <ul>
 {}
 </ul>
