@@ -672,18 +672,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f051f77a7c8e6957c0696eac88f26b0117e54f52d3fc682ab19397a8812846a4"
 
 [[package]]
-name = "liveserver"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "clap",
- "ctrlc",
- "exitcode",
- "lazy_static",
- "mime_guess",
-]
-
-[[package]]
 name = "local-channel"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1022,6 +1010,18 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serve"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "clap",
+ "ctrlc",
+ "exitcode",
+ "lazy_static",
+ "mime_guess",
 ]
 
 [[package]]
