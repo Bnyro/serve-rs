@@ -77,7 +77,7 @@ async fn main() -> std::io::Result<()> {
         std::process::exit(exitcode::OSFILE);
     }
 
-    println!("\nStarted live server at {}:{}", "http://".to_string() + ARGS.address.replace("http://", "").as_str(), ARGS.port.clone());
+    println!("Started live server at {}:{}", "http://".to_string() + ARGS.address.replace("http://", "").as_str(), ARGS.port.clone());
     HttpServer::new(move || App::new().service(index))
         .bind((ARGS.address.clone(), ARGS.port))?
         .run()
