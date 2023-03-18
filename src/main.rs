@@ -1,6 +1,6 @@
 pub mod directory;
 
-use std::{path::{Path, PathBuf}, fs};
+use std::{path::{Path, PathBuf}, fs::File, io::Read};
 
 use clap::{Parser, ArgAction, ValueHint};
 use actix_web::{App, HttpServer, web, HttpResponse, get, http::header::ContentType};
@@ -41,7 +41,7 @@ async fn index(filename: web::Path<String>) -> HttpResponse {
     };
 
     let mut content_type = ContentType::plaintext().to_string();
-    let mut content = String::from("Not Found");
+    let mut response_bytes: Vec<u8> = String::from("Not Found").into_bytes();
     if target.is_file() {
         match mime_guess::from_path(target.clone()).first() {
             Some(ct) => {
@@ -49,19 +49,21 @@ async fn index(filename: web::Path<String>) -> HttpResponse {
             },
             None => {}
         }
-        content = fs::read_to_string(target).expect("Can't read file!");
+        let mut file_content = Vec::new();
+        File::open(target).expect("Unable to open file").read_to_end(& mut file_content).expect("Can't read file!");
+        response_bytes = file_content;
     } else if target.is_dir() {
         match ARGS.list {
             true => {
                 content_type = ContentType::html().to_string();
-                content = String::from(directory_listing(target, base));
+                response_bytes = directory_listing(target, base).into_bytes();
             },
             false => {
                 return HttpResponse::NotFound().body("Page Not Found")
             }
         }
     }
-    return HttpResponse::Ok().content_type(content_type).body(content);
+    return HttpResponse::Ok().content_type(content_type).body(response_bytes);
 }
 
 #[actix_web::main]
